@@ -1,10 +1,7 @@
 from django.urls import path
-from apps.users.views import UsersAPIView, RegisterAPIView, UserAPIView, UserUpdateAPIView, UserDestroyAPIVIew
+from apps.users.views import RegisterAPIView, EmailCheckAPIView
 
 urlpatterns = [
-    path('', UsersAPIView.as_view()),
-    path('<int:pk>/', UserAPIView.as_view()),
-    path('update/<int:pk>/', UserUpdateAPIView.as_view()),
-    path('delete/<int:pk>/', UserDestroyAPIVIew.as_view()),
     path('register/', RegisterAPIView.as_view()),
+    path('check_email/', EmailCheckAPIView.as_view()),
 ]
