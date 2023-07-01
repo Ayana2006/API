@@ -21,6 +21,7 @@ class User(AbstractUser):
         
 class EmailCheckCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.CharField(max_length=255)
     code = models.CharField(
         max_length=6,
         blank=True, 

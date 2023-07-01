@@ -29,15 +29,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
 class EmailCheck(serializers.ModelSerializer):
-    email = serializers.CharField()
+    email = serializers.CharField(write_only=True)
+    code = serializers.CharField(read_only=True)
     class Meta:
-        model = User
-        fields = ['email']
+        model = EmailCheckCode
+        fields = ['email', 'code']
     
     def create(self, validated_data):
         if User.objects.filter(email=validated_data['email']).exists():
             user = User.objects.get(email = validated_data['email'])
-            code = EmailCheckCode.objects.create(user=user)
+            code = EmailCheckCode.objects.create(user=user, email=validated_data['email'])
             code.save()
             email_body = f"""
                 Здравствуйте,
@@ -53,4 +54,29 @@ class EmailCheck(serializers.ModelSerializer):
                     #to email 
                     [user.email] 
             )
-            return f'{code.code}'
+            return code
+        
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(write_only = True)
+    password = serializers.CharField(write_only = True, required = True, validators = [validate_password])
+    confirm_password = serializers.CharField(write_only = True, required = True)
+    
+    class Meta:
+        model = User
+        fields = ['code', 'password', 'confirm_password']
+        
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({'password':"Пароли отличаются"})
+        if EmailCheckCode.objects.all().filter(code = attrs['code']).exists() == False:
+            raise serializers.ValidationError({'code':"Такого кода нет"})
+        return attrs
+     
+    def create(self, validated_data):
+        email_check = EmailCheckCode.objects.all().filter(code = validated_data['code'])
+        user = User.objects.get(email = email_check[0].email)
+        user.set_password(validated_data['password'])
+        user.save()
+        for i in email_check:
+            i.delete()
+        return user
