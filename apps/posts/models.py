@@ -17,3 +17,59 @@ class Post(models.Model):
     created = models.DateTimeField(
         auto_now_add=True
     )
+    
+    def __str__(self):
+        return f"{self.user.username}-Пост-{self.id}"
+    
+    class Meta:
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Посты'
+        
+
+class Comment(models.Model):
+    text = models.CharField(
+        max_length=550
+    )
+    parent = models.ForeignKey(
+        'self',
+        related_name = 'child_comm',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    from_user = models.ForeignKey(
+        User,
+        related_name='comments',
+        on_delete=models.CASCADE
+    )
+    to_post = models.ForeignKey(
+        Post,
+        related_name='comments',
+        on_delete=models.CASCADE
+    )
+    
+    def __str__(self):
+        return f"{self.text[:10]} - {self.from_user.username}"
+    
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарийи'
+        
+class Like(models.Model):
+    from_user = models.ForeignKey(
+        User,
+        related_name='liked_posts',
+        on_delete=models.CASCADE
+    )
+    to_post = models.ForeignKey(
+        Post,
+        related_name='liked_users',
+        on_delete=models.CASCADE
+    )
+    
+    def __str__(self):
+        return f"{self.to_post.liked_users.count}-{self.to_post.id}"
+    
+    class Meta:
+        verbose_name = 'Лайк'
+        verbose_name_plural = 'Лайки'
