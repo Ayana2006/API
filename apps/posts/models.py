@@ -73,3 +73,22 @@ class Like(models.Model):
     class Meta:
         verbose_name = 'Лайк'
         verbose_name_plural = 'Лайки'
+        
+class LikeComments(models.Model):
+    from_user = models.ForeignKey(
+        User,
+        related_name='liked_user',
+        on_delete=models.CASCADE
+    )
+    to_comment = models.ForeignKey(
+        Comment,
+        related_name='liked_comment',
+        on_delete=models.CASCADE
+    )
+    
+    def __str__(self):
+        return f"{self.to_comment.liked_comment.count}-{self.to_comment.id}"
+    
+    class Meta:
+        verbose_name = 'Лайк для коммента'
+        verbose_name_plural = 'Лайки для комментарий'

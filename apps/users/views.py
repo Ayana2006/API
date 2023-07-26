@@ -1,7 +1,7 @@
 from rest_framework import generics, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from apps.users.models import User, EmailCheckCode
-from apps.users.serializers import UserSerializer, RegisterSerializer, EmailCheck, ResetPasswordSerializer
+from apps.users.serializers import UserSerializer, RegisterSerializer, EmailCheck, ResetPasswordSerializer, UpdatePasswordSerializer
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -20,3 +20,7 @@ class EmailCheckAPIView(generics.CreateAPIView):
 class ResetPasswordAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = ResetPasswordSerializer
+    
+class UpdatePasswordAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UpdatePasswordSerializer
