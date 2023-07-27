@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.core.mail import send_mail
+import json
 from django.contrib.auth.password_validation import validate_password
 from apps.users.models import User, EmailCheckCode
 
@@ -81,6 +82,15 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
             i.delete()
         return user
     
+class UserLikesPosts(serializers.ModelSerializer):
+    posts = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ('id','username', 'first_name', 'last_name', 'date_of_birth','profile_image','description','posts', 'email')
+        
+    def get_posts(self,obj):
+        return json.dumps(obj.liked_posts.all(),indent=4,sort_keys=True)
+    
 class UpdatePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only = True, required = True)
     new_password = serializers.CharField(write_only = True, required = True, validators = [validate_password])
@@ -100,3 +110,8 @@ class UpdatePasswordSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['new_password'])
         user.save()
         return user 
+    
+class ChatUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','username','profile_image')
